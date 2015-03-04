@@ -1,122 +1,67 @@
-var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'game', { preload: preload, create: create, update: update, render: render });
+
+var game = new Phaser.Game(800, 600, Phaser.AUTO, 'game', { preload: preload, create: create, update: update });
 
 function preload() {
 
-    game.load.image('background','assets/sprites/background.jpg');
-    game.load.image('player','assets/sprites/man.png');
-	game.load.audio('music', 'assets/audio/Axwell - Ingrosso - We Come We Rave We Love (Dex Morrison Remix).mp3');
-	game.load.image('ball', 'assets/sprites/pencil.png');
-    game.load.image('button', 'assets/sprites/button.png');
-    game.load.image('close', 'assets/sprites/red.png');
+    game.load.image('star', 'assets/sprites/background.jpg');
+
 }
 
-var player;
-var cursors;
-var music;
-var button;
-var popup;
-var tween;
+var distance = 300;
+var speed = 4;
+var stars;
+
+var max = 200;
+var xx = [];
+var yy = [];
+var zz = [];
 
 function create() {
 
-    game.world.setBounds(0, 0, 3400, 1000);
-    game.add.tileSprite(0, 0, 3400, 1000, 'background');
-	
-	//music
-    game.stage.backgroundColor = '#182d3b';
-    game.input.touch.preventDefault = false;
-    music = game.add.audio('music');
-    music.play();
-    game.input.onDown.add(changeVolume, this);
-	
-	//bitmapData
-	game.physics.startSystem(Phaser.Physics.P2JS);
-    player = game.add.sprite(100, 900, 'player');
-    game.physics.p2.enable(player);
-    cursors = game.input.keyboard.createCursorKeys();
-	fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-    game.camera.follow(player);
-	
-	//add pencil
-	emitter = game.add.emitter(game.world.centerX, 100, 200);
-    emitter.makeParticles('ball');
-    emitter.start(false, 5000, 20);
-	
-	//button
-	button = game.add.button(game.world.centerX - 95, 460, 'button', openWindow, this, 2, 1, 0);
-    button.input.useHandCursor = true;
-	 //  You can drag the pop-up window around
-    popup = game.add.sprite(700, 100, 'background');
-    popup.alpha = 0.8;
-    popup.anchor.set(0.5);
-    popup.inputEnabled = true;
-    popup.input.enableDrag();
-    //  Position the close button to the top-right of the popup sprite (minus 8px for spacing)
-    var pw = (popup.width / 2) - 30;
-    var ph = (popup.height / 2) - 8;
-    //  And click the close button to close it down again
-    var closeButton = game.make.sprite(pw, -ph, 'close');
-    closeButton.inputEnabled = true;
-    closeButton.input.priorityID = 1;
-    closeButton.input.useHandCursor = true;
-    closeButton.events.onInputDown.add(closeWindow, this);
-    //  Add the "close button" to the popup window image
-    popup.addChild(closeButton);
-    //  Hide it awaiting a click
-    popup.scale.set(0);
+    if (game.renderType === Phaser.WEBGL)
+    {
+        max = 2000;
+    }
+
+    var sprites = game.add.spriteBatch();
+
+    stars = [];
+
+    for (var i = 0; i < max; i++)
+    {
+        xx[i] = Math.floor(Math.random() * 800) - 400;
+        yy[i] = Math.floor(Math.random() * 600) - 300;
+        zz[i] = Math.floor(Math.random() * 1700) - 100;
+
+        var star = game.make.sprite(0, 0, 'star');
+        star.anchor.set(0.5);
+
+        sprites.addChild(star);
+
+        stars.push(star);
+    }
 
 }
 
 function update() {
-	
-	//bitmapData
-	player.body.setZeroVelocity();
-    if (cursors.up.isDown){
-        player.body.moveUp(300)
+
+    for (var i = 0; i < max; i++)
+    {
+        stars[i].perspective = distance / (distance - zz[i]);
+        stars[i].x = game.world.centerX + xx[i] * stars[i].perspective;
+        stars[i].y = game.world.centerY + yy[i] * stars[i].perspective;
+
+        zz[i] += speed;
+
+        if (zz[i] > 290)
+        {
+            zz[i] -= 600;
+        }
+
+        stars[i].alpha = Math.min(stars[i].perspective / 2, 1);
+        stars[i].scale.set(stars[i].perspective / 2);
+        stars[i].rotation += 0.1;
+
     }
-    else if (cursors.down.isDown){
-        player.body.moveDown(300);
-    }
-    if (cursors.left.isDown){
-        player.body.velocity.x = -300;
-    }
-    else if (cursors.right.isDown){
-        player.body.moveRight(300);
-    }
-}
 
-function openWindow() {
-
-    if ((tween && tween.isRunning) || popup.scale.x === 1){
-        return;
-    }
-    //  Create a tween that will pop-open the window, but only if it's not already tweening or open
-    tween = game.add.tween(popup.scale).to( { x: 1, y: 1 }, 1000, Phaser.Easing.Elastic.Out, true);
-
-}
-
-function closeWindow() {
-
-    if (tween.isRunning || popup.scale.x === 0){
-        return;
-    }
-    //  Create a tween that will close the window, but only if it's not already tweening or closed
-    tween = game.add.tween(popup.scale).to( { x: 0, y: 0 }, 500, Phaser.Easing.Elastic.In, true);
-
-}
-
-function render() {
-	
-	//music
-	game.debug.soundInfo(music, 20, 32);
-}
-
-function changeVolume(pointer) {
-
-    if (pointer.y < 300){
-        music.volume += 0.1;
-    }
-    else{
-        music.volume -= 0.1;
-    }
 }
