@@ -74,7 +74,7 @@ function create() {
 	
 	//score
 	scoreString = 'Fuel : ';
-    scoreText = game.add.text(10, 400, scoreString + score, { font: '34px Arial', fill: '#fff' });
+    scoreText = game.add.text(10, 450, scoreString + score, { font: '34px Arial', fill: '#fff' });
 	
 	//timer
 	game.time.events.add(Phaser.Timer.SECOND * 5, fadePicture, this);
@@ -134,7 +134,7 @@ function fadePicture() {
     game.add.tween(bg).to( { alpha: 0 }, 2000, Phaser.Easing.Linear.None, true);
 
 	var text = 'YOU LOSE!';
-    var end = game.add.text(10, 400, text, { font: '500px Arial', fill: '#fff' });
+    var end = game.add.text(0, 450, text, { font: '500px Arial', fill: '#fff' });
 	//game.debug.text("YOU LOSE!" 32, 32);
 }
 
