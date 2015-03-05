@@ -77,7 +77,7 @@ function create() {
     scoreText = game.add.text(10, 400, scoreString + score, { font: '34px Arial', fill: '#fff' });
 	
 	//timer
-	game.time.events.add(Phaser.Timer.SECOND * 4, fadePicture, this);
+	game.time.events.add(Phaser.Timer.SECOND * 5, fadePicture, this);
 
 }
 
